@@ -1,4 +1,4 @@
-# SmartATM 2026 - CodeSoft Java Internship
+# SmartATM 2026 
 
 Welcome to **SmartATM 2026**, a premium banking desktop application built for the **CodeSoft Java Internship Task 3 (ATM Interface)**.
 
