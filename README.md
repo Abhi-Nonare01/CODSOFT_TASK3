@@ -25,3 +25,33 @@ To test the ATM Interface, please use the following default credentials:
 - **Data Encapsulation**: Strictly follows OOP & SOLID principles by separating the UI (`ATMDashboard`) from the Core Logic (`ATM`, `BankAccount`, `Transaction`).
 
 ## 📁 Folder Structure
+src
+
+├── app
+│      Main.java
+│
+├── atm
+│      ATM.java
+│      ATMDashboard.java
+│
+├── model
+│      BankAccount.java
+│      Transaction.java
+│
+├── ui
+│      GradientPanel.java
+│      RoundedButton.java
+│      RoundedTextField.java
+│      GlassPanel.java
+│
+├── utils
+│      ThemeManager.java
+│
+└── assets
+images
+sounds
+fonts
+
+🔮 Future Improvements
+Database Integration: Link the ATM class to a MySQL or PostgreSQL database for persistent accounts.
+Card Reader Simulation: Add a preliminary screen that asks for a Card Number before the PIN.
