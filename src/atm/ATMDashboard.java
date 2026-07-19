@@ -18,7 +18,7 @@ import java.util.Locale;
 
 /**
  * The Graphical User Interface for the SmartATM2026 application.
- * Manages the Login view, Dashboard Layout, and all banking operations.
+ * Manages the dynamic Login view, Dashboard Layout, and all banking operations.
  */
 public class ATMDashboard extends GradientPanel {
 
@@ -27,6 +27,8 @@ public class ATMDashboard extends GradientPanel {
     private final JPanel mainContainer;
 
     // Login Components
+    private RoundedTextField accNoField;
+    private RoundedTextField nameField;
     private RoundedTextField pinField;
 
     // Dashboard Components
@@ -80,37 +82,41 @@ public class ATMDashboard extends GradientPanel {
 
         GlassPanel loginCard = new GlassPanel(30);
         loginCard.setLayout(new BoxLayout(loginCard, BoxLayout.Y_AXIS));
-        loginCard.setBorder(new EmptyBorder(50, 60, 50, 60));
-        loginCard.setPreferredSize(new Dimension(450, 480));
+        loginCard.setBorder(new EmptyBorder(40, 60, 40, 60));
+        loginCard.setPreferredSize(new Dimension(480, 580)); // Increased height for new fields
 
-        // Removed Emoji, using clean text
         JLabel logo = new JLabel("SmartATM", SwingConstants.CENTER);
         logo.setFont(new Font("Segoe UI", Font.BOLD, 42));
         logo.setForeground(ThemeManager.getInstance().getAccentColor());
         logo.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel title = new JLabel("Welcome Back");
-        title.setFont(ThemeManager.getInstance().getHeaderFont());
-        title.setForeground(ThemeManager.getInstance().getTextPrimary());
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel subtitle = new JLabel("Secure Banking Gateway");
         subtitle.setFont(ThemeManager.getInstance().getNormalFont());
         subtitle.setForeground(ThemeManager.getInstance().getTextSecondary());
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        accNoField = new RoundedTextField(15, "Account Number", false);
+        accNoField.setMaximumSize(new Dimension(320, 50));
+        accNoField.setFont(ThemeManager.getInstance().getHeaderFont());
+        accNoField.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        nameField = new RoundedTextField(15, "Account Holder Name", false);
+        nameField.setMaximumSize(new Dimension(320, 50));
+        nameField.setFont(ThemeManager.getInstance().getHeaderFont());
+        nameField.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         pinField = new RoundedTextField(4, "Enter 4-Digit PIN", true);
-        pinField.setMaximumSize(new Dimension(280, 50)); // Widened slightly
-        pinField.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        pinField.setMaximumSize(new Dimension(320, 50));
+        pinField.setFont(ThemeManager.getInstance().getHeaderFont());
         pinField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         RoundedButton loginBtn = new RoundedButton("Access Account", ThemeManager.getInstance().getAccentColor(), ThemeManager.getInstance().getAccentHoverColor());
-        loginBtn.setMaximumSize(new Dimension(280, 45));
+        loginBtn.setMaximumSize(new Dimension(320, 45));
         loginBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         loginBtn.addActionListener(e -> processLogin());
 
         RoundedButton exitBtn = new RoundedButton("Exit Terminal", ThemeManager.getInstance().getErrorColor(), ThemeManager.getInstance().getErrorColor().brighter());
-        exitBtn.setMaximumSize(new Dimension(280, 45));
+        exitBtn.setMaximumSize(new Dimension(320, 45));
         exitBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         exitBtn.addActionListener(e -> System.exit(0));
 
@@ -121,24 +127,27 @@ public class ATMDashboard extends GradientPanel {
         themeBtn.addActionListener(e -> toggleTheme());
 
         loginCard.add(logo);
-        loginCard.add(Box.createRigidArea(new Dimension(0, 15)));
-        loginCard.add(title);
         loginCard.add(Box.createRigidArea(new Dimension(0, 5)));
         loginCard.add(subtitle);
-        loginCard.add(Box.createRigidArea(new Dimension(0, 40)));
+        loginCard.add(Box.createRigidArea(new Dimension(0, 30)));
+        loginCard.add(accNoField);
+        loginCard.add(Box.createRigidArea(new Dimension(0, 15)));
+        loginCard.add(nameField);
+        loginCard.add(Box.createRigidArea(new Dimension(0, 15)));
         loginCard.add(pinField);
         loginCard.add(Box.createRigidArea(new Dimension(0, 25)));
         loginCard.add(loginBtn);
         loginCard.add(Box.createRigidArea(new Dimension(0, 15)));
         loginCard.add(exitBtn);
-        loginCard.add(Box.createRigidArea(new Dimension(0, 30)));
+        loginCard.add(Box.createRigidArea(new Dimension(0, 20)));
         loginCard.add(themeBtn);
 
         wrapper.add(loginCard);
 
-        // Default PIN hint
-        JLabel hint = new JLabel("Demo PIN: 1234");
-        hint.setForeground(ThemeManager.getInstance().getTextSecondary());
+        // Dynamic Hint
+        JLabel hint = new JLabel("New accounts are auto-created with ₹25,000 Demo Balance!");
+        hint.setFont(ThemeManager.getInstance().getBoldFont());
+        hint.setForeground(ThemeManager.getInstance().getWarningColor());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 1;
         gbc.insets = new Insets(20, 0, 0, 0);
@@ -148,19 +157,26 @@ public class ATMDashboard extends GradientPanel {
     }
 
     private void processLogin() {
+        String accNo = accNoField.getText().trim();
+        String name = nameField.getText().trim();
         String pin = new String(pinField.getPassword()).trim();
-        if (pin.isEmpty()) {
-            showError("PIN cannot be empty.");
+
+        if (accNo.isEmpty() || name.isEmpty() || pin.isEmpty()) {
+            showError("Please fill all fields.");
             return;
         }
 
-        if (atmCore.authenticate(pin)) {
+        if (atmCore.authenticate(accNo, name, pin)) {
+            // Clear fields on successful login
+            accNoField.setText("");
+            nameField.setText("");
             pinField.setText("");
+
             updateDashboardHeader();
             loadHomeView();
             mainCardLayout.show(mainContainer, "DASHBOARD");
         } else {
-            showError("Invalid PIN. Access Denied.");
+            showError("Invalid PIN for this existing account!");
             pinField.setText("");
         }
     }
@@ -177,10 +193,9 @@ public class ATMDashboard extends GradientPanel {
         GlassPanel sidebar = new GlassPanel(20, false);
         sidebar.setCustomGlassColor(ThemeManager.getInstance().getSidebarColor());
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setPreferredSize(new Dimension(250, 0)); // Slightly adjusted width
+        sidebar.setPreferredSize(new Dimension(250, 0));
         sidebar.setBorder(new EmptyBorder(25, 20, 25, 20));
 
-        // Removed Emoji, used pure clean typography
         JLabel logo = new JLabel("SmartATM");
         logo.setFont(ThemeManager.getInstance().getHeaderFont());
         logo.setForeground(ThemeManager.getInstance().getTextPrimary());
@@ -202,7 +217,6 @@ public class ATMDashboard extends GradientPanel {
         sidebar.add(timeLabel);
         sidebar.add(Box.createRigidArea(new Dimension(0, 40)));
 
-        // Removed Emojis from buttons to ensure it works cross-platform
         sidebar.add(createMenuButton("Home", "HOME"));
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         sidebar.add(createMenuButton("Withdraw", "WITHDRAW"));
@@ -288,7 +302,7 @@ public class ATMDashboard extends GradientPanel {
     private RoundedButton createMenuButton(String text, String cardName) {
         RoundedButton btn = new RoundedButton(text, new Color(51, 65, 85, 150), ThemeManager.getInstance().getAccentColor(), 15);
         btn.setMaximumSize(new Dimension(250, 45));
-        btn.setHorizontalAlignment(SwingConstants.CENTER); // Changed to center alignment for cleaner look
+        btn.setHorizontalAlignment(SwingConstants.CENTER);
         btn.setBorder(new EmptyBorder(0, 0, 0, 0));
         btn.setFont(ThemeManager.getInstance().getBoldFont());
         btn.addActionListener(e -> {
@@ -304,7 +318,9 @@ public class ATMDashboard extends GradientPanel {
         if (atmCore.isSessionActive()) {
             headerNameLabel.setText("Welcome, " + atmCore.getActiveAccount().getHolderName());
             String acc = atmCore.getActiveAccount().getAccountNumber();
-            headerAccLabel.setText("A/C: ****" + acc.substring(acc.length() - 4));
+            // Mask account number properly
+            String maskedAcc = acc.length() > 4 ? "****" + acc.substring(acc.length() - 4) : acc;
+            headerAccLabel.setText("A/C: " + maskedAcc);
             headerBalanceLabel.setText(currencyFormatter.format(atmCore.getActiveAccount().getBalance()));
         }
     }
@@ -336,7 +352,6 @@ public class ATMDashboard extends GradientPanel {
     }
 
     private JPanel createWithdrawView() {
-        // Shortened placeholder and widened field to prevent text cut-off
         return createInputForm("Withdraw Funds", "Amount to Withdraw (₹)", "Withdraw", e -> {
             RoundedTextField inputField = (RoundedTextField) ((JButton)e.getSource()).getClientProperty("inputField");
             try {
@@ -389,7 +404,6 @@ public class ATMDashboard extends GradientPanel {
         title.setForeground(ThemeManager.getInstance().getTextPrimary());
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Increased field widths to 400px to ensure text fits
         RoundedTextField accField = new RoundedTextField(15, "Target Account No.", false);
         accField.setMaximumSize(new Dimension(400, 45));
         accField.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -633,7 +647,6 @@ public class ATMDashboard extends GradientPanel {
         title.setForeground(ThemeManager.getInstance().getTextPrimary());
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Increased field width to 400px so long placeholders won't be cut off
         RoundedTextField inputField = new RoundedTextField(15, placeholder, false);
         inputField.setMaximumSize(new Dimension(400, 50));
         inputField.setFont(ThemeManager.getInstance().getHeaderFont());

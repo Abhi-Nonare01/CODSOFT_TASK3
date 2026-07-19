@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * The core controller of the SmartATM2026 system.
- * Simulates a bank database and handles session management.
+ * Handles dynamic session management and dynamic account creation.
  */
 public class ATM {
     private final Map<String, BankAccount> database;
@@ -15,34 +15,33 @@ public class ATM {
 
     public ATM() {
         this.database = new HashMap<>();
-        initializeMockData();
     }
 
     /**
-     * Pre-loads the system with a demo account.
+     * Authenticates the user or creates a new account dynamically if it doesn't exist.
+     *
+     * @param accNo The account number provided by the user.
+     * @param name The account holder's name.
+     * @param pin The 4-digit PIN.
+     * @return true if login is successful or account is created, false if PIN is wrong for an existing account.
      */
-    private void initializeMockData() {
-        // Default demo account: PIN 1234
-        BankAccount demoAccount = new BankAccount("4598210045", "John Doe", "1234", 25000.00);
-
-        // Add some mock history
-        demoAccount.withdraw(2000.0);
-        demoAccount.deposit(5000.0);
-
-        database.put("1234", demoAccount);
-    }
-
-    /**
-     * Authenticates the user based on the PIN.
-     * In a real system, it would require Card No + PIN.
-     */
-    public boolean authenticate(String pin) {
-        BankAccount acc = database.get(pin);
-        if (acc != null && acc.verifyPin(pin)) {
-            this.activeSession = acc;
+    public boolean authenticate(String accNo, String name, String pin) {
+        // If account already exists, verify the PIN
+        if (database.containsKey(accNo)) {
+            BankAccount existingAcc = database.get(accNo);
+            if (existingAcc.verifyPin(pin)) {
+                this.activeSession = existingAcc;
+                return true;
+            }
+            return false; // Wrong PIN for existing account
+        }
+        // If account does not exist, create a new one dynamically with a demo balance
+        else {
+            BankAccount newAccount = new BankAccount(accNo, name, pin, 25000.00);
+            database.put(accNo, newAccount);
+            this.activeSession = newAccount;
             return true;
         }
-        return false;
     }
 
     public void logout() {
