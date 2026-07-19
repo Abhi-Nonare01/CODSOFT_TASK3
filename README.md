@@ -50,8 +50,31 @@ src
        ThemeManager.java         # Singleton Color & Typography State
 sounds
 fonts
+```
 
 🔮 Future Improvements:
 
 Database Integration: Link the ATM class to a MySQL or PostgreSQL database for persistent accounts.
 Card Reader Simulation: Add a preliminary screen that asks for a Card Number before the PIN.
+
+
+
+ScreenShots:  
+
+<img width="789" height="664" alt="image" src="https://github.com/user-attachments/assets/8f265686-0b7a-4c98-95af-735521c49a0e" />
+
+<img width="1352" height="666" alt="image" src="https://github.com/user-attachments/assets/fb198849-f64d-48e1-913a-2ee42f99a053" />
+
+<img width="1344" height="669" alt="image" src="https://github.com/user-attachments/assets/5f8c9a57-4cb7-47c4-844f-f31a508ac0be" />
+
+<img width="1360" height="687" alt="image" src="https://github.com/user-attachments/assets/c4976ed1-1489-432b-bdd6-694d1ca0a7a5" />
+
+<img width="1355" height="678" alt="image" src="https://github.com/user-attachments/assets/a4035afc-9a06-4085-b801-8753eab2a9ea" />
+
+<img width="1355" height="681" alt="image" src="https://github.com/user-attachments/assets/efff06e3-9df8-4036-ad4c-74ca3ec3a85b" />
+
+
+
+
+
+
